@@ -46,7 +46,7 @@ const getWeatherDataFromLocation = async (latitude, longitude) => {
   return { description, tempInCelcius, city, country, iconId, weatherType };
 };
 
-const getWeatherFromInput = async (cityname) => {
+const inputCityName = async (cityname) => {
   const API_URL_CityName = `http://api.openweathermap.org/geo/1.0/direct?q=${cityname}&limit=5&appid=${API_key}`;
   loaderContainer.style.display = "inline-block";
   cardContainer.style.display = "none";
@@ -74,7 +74,7 @@ const fetchData = async (url) => {
 
 searchBtn.addEventListener("click", async () => {
   const value = inputField.value;
-  const result = await getWeatherFromInput(value);
+  const result = await inputCityName(value);
 });
 
 const displayWeatherDetails = async (weathDetails) => {
