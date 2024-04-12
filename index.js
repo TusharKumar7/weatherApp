@@ -111,10 +111,10 @@ const displayWeatherDetails = async (weathDetails) => {
   document.body.style.backgroundImage = `url(/assets/${weatherType}.jpg)`;
 };
 
-const toggleContainer = (val1, val2, val3) => {
-  loaderContainer.style.display = val1 ? "inline-block" : "none";
-  cardContainer.style.display = val2 ? "inline-block" : "none";
-  errorContainer.style.display = val3 ? "inline-block" : "none";
+const toggleContainer = (showLoader, showCard, showError) => {
+  loaderContainer.style.display = showLoader ? "inline-block" : "none";
+  cardContainer.style.display = showCard ? "inline-block" : "none";
+  errorContainer.style.display = showError ? "inline-block" : "none";
 };
 
 
