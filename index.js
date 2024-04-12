@@ -13,6 +13,8 @@ const errorMessage = document.getElementById("error-message");
 
 cardContainer.style.display = "none";
 errorContainer.style.display = "none";
+document.body.style.height = "100vh";
+document.body.style.backgroundSize = "cover";
 
 // To get current location
 const getCityName = async (position) => {
@@ -36,7 +38,8 @@ if ("geolocation" in navigator) {
 
 const getWeatherDataFromLocation = async (latitude, longitude) => {
   const API_URL_Coordinates = `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_key}`;
-  const weatherDetails = await fetchData(API_URL_Coordinates);
+  const data2 = await fetchData(API_URL_Coordinates);
+  const weatherDetails = await data2.json();
   const iconId = weatherDetails.weather[0].icon;
   const tempInCelcius = Math.floor(weatherDetails.main.temp - 273.15);
   const description = weatherDetails.weather[0].description;
@@ -50,7 +53,8 @@ const inputCityName = async (cityname) => {
   const API_URL_CityName = `http://api.openweathermap.org/geo/1.0/direct?q=${cityname}&limit=5&appid=${API_key}`;
   loaderContainer.style.display = "inline-block";
   cardContainer.style.display = "none";
-  const jsonData = await fetchData(API_URL_CityName);
+  const data = await fetchData(API_URL_CityName);
+  const jsonData = await data.json();
   if (jsonData.length !== 0) {
     const lat = jsonData[0].lat;
     const lon = jsonData[0].lon;
@@ -68,13 +72,21 @@ const inputCityName = async (cityname) => {
 
 const fetchData = async (url) => {
   const response = await fetch(url);
-  const data = await response.json();
-  return data;
+  return response;
 };
+inputField.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    searchBtn.click();
+  }
+  else if(inputField.value==0 && e.keyCode===32){
+    e.preventDefault();
+    return;
+  }
+});
 
 searchBtn.addEventListener("click", async () => {
   const value = inputField.value;
-  const result = await inputCityName(value);
+  inputCityName(value.trim());
 });
 
 const displayWeatherDetails = async (weathDetails) => {
