@@ -1,6 +1,6 @@
 const API_key = "82005d27a116c2880c8f0fcb866998a0";
-const searchBtn = document.querySelector(".search-btn");
-const inputField = document.querySelector(".city-input");
+const searchBtn = document.getElementById("search-btn");
+const inputField = document.getElementById("city-input");
 const cityWeatherIcon = document.getElementById("city-weather-icon");
 const cityTemp = document.getElementById("city-temp");
 const cityDesc = document.getElementById("city-desc");
@@ -27,7 +27,7 @@ const getCityName = async (position) => {
 const failedToGetLocation = async (error) => {
   console.log("Error getting user location:", error);
   errorMessage.innerText = "Permission Blocked";
-  showError();
+  toggleContainer(false,false,true);
 };
 
 if ("geolocation" in navigator) {
@@ -36,8 +36,8 @@ if ("geolocation" in navigator) {
 
 const getWeatherDataFromLocation = async (latitude, longitude) => {
   const API_URL_Coordinates = `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_key}`;
-  const data2 = await fetchData(API_URL_Coordinates);
-  const weatherDetails = await data2.json();
+  const data = await fetchData(API_URL_Coordinates);
+  const weatherDetails = await data.json();
   const iconId = weatherDetails.weather[0].icon;
   const tempInCelcius = Math.floor(weatherDetails.main.temp - 273.15);
   const description = weatherDetails.weather[0].description;
@@ -49,8 +49,7 @@ const getWeatherDataFromLocation = async (latitude, longitude) => {
 
 const inputCityName = async (cityname) => {
   const API_URL_CityName = `http://api.openweathermap.org/geo/1.0/direct?q=${cityname}&limit=5&appid=${API_key}`;
-  loaderContainer.style.display = "inline-block";
-  cardContainer.style.display = "none";
+  toggleContainer(true,false,false);
   const data = await fetchData(API_URL_CityName);
   if (data) {
     const jsonData = await data?.json();
@@ -58,12 +57,11 @@ const inputCityName = async (cityname) => {
       const lat = jsonData[0]?.lat;
       const lon = jsonData[0]?.lon;
       const locationData = await getWeatherDataFromLocation(lat, lon);
-      // inputField.value = "";
       displayWeatherDetails(locationData);
     }else{
       errorMessage.innerText = "Invalid City";
       document.body.style.backgroundImage = "url(/assets/Default.jpg)";
-      showError();
+      toggleContainer(false,false,true);
     }
   } else {
     return null;
@@ -75,7 +73,7 @@ const fetchData = async (url) => {
     if (response.status !== 200) {
       errorMessage.innerText = "Invalid City";
       document.body.style.backgroundImage = "url(/assets/Default.jpg)";
-      showError();
+      toggleContainer(false,false,true);
       return null;
     }
     return response;
@@ -94,17 +92,15 @@ searchBtn.addEventListener("click", async () => {
   if (!inputField.value == "") {
     const value = inputField.value;
     inputCityName(value.trim());
-    inputField.value="";
   } else {
-    inputField.value="";
     errorMessage.innerText = "Please Enter cityname";
-    showError();
+    toggleContainer(false,false,true);
   }
+  inputField.value="";
 });
 
 const displayWeatherDetails = async (weathDetails) => {
-  errorContainer.style.display = "none";
-  hideLoader();
+  toggleContainer(false,true,false);
   const { tempInCelcius, description, city, country, iconId, weatherType } =
     weathDetails;
   cityTemp.innerText = tempInCelcius + "° ";
@@ -115,18 +111,10 @@ const displayWeatherDetails = async (weathDetails) => {
   document.body.style.backgroundImage = `url(/assets/${weatherType}.jpg)`;
 };
 
-const showLoader = () => {
-  cardContainer.style.display = "none";
-  loaderContainer.style.display = "inline-block";
+const toggleContainer = (val1, val2, val3) => {
+  loaderContainer.style.display = val1 ? "inline-block" : "none";
+  cardContainer.style.display = val2 ? "inline-block" : "none";
+  errorContainer.style.display = val3 ? "inline-block" : "none";
 };
 
-const hideLoader = () => {
-  cardContainer.style.display = "inline-block";
-  loaderContainer.style.display = "none";
-};
 
-const showError=()=>{
-  cardContainer.style.display = "none";
-  loaderContainer.style.display = "none";
-  errorContainer.style.display="inline-block"
-}
