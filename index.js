@@ -74,19 +74,28 @@ const fetchData = async (url) => {
   const response = await fetch(url);
   return response;
 };
+
 inputField.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     searchBtn.click();
   }
-  else if(inputField.value==0 && e.keyCode===32){
+  else if(inputField.value=='' && e.keyCode===32){
     e.preventDefault();
     return;
   }
 });
 
 searchBtn.addEventListener("click", async () => {
-  const value = inputField.value;
-  inputCityName(value.trim());
+  if(!inputField.value==''){
+    const value = inputField.value;
+    inputCityName(value.trim());
+  }
+  else{
+    loaderContainer.style.display="none";
+    cardContainer.style.display="none"
+    errorMessage.innerText="Please Enter cityname";
+    errorContainer.style.display="inline-block"
+  } 
 });
 
 const displayWeatherDetails = async (weathDetails) => {
