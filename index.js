@@ -13,7 +13,6 @@ const errorMessage = document.getElementById("error-message");
 
 cardContainer.style.display = "none";
 errorContainer.style.display = "none";
-document.body.style.height = "100vh";
 document.body.style.backgroundSize = "cover";
 
 // To get current location
@@ -28,8 +27,7 @@ const getCityName = async (position) => {
 const failedToGetLocation = async (error) => {
   console.log("Error getting user location:", error);
   errorMessage.innerText = "Permission Blocked";
-  errorContainer.style.display = "inline-block";
-  loaderContainer.style.display = "none";
+  showError();
 };
 
 if ("geolocation" in navigator) {
@@ -54,54 +52,59 @@ const inputCityName = async (cityname) => {
   loaderContainer.style.display = "inline-block";
   cardContainer.style.display = "none";
   const data = await fetchData(API_URL_CityName);
-  const jsonData = await data.json();
-  if (jsonData.length !== 0) {
-    const lat = jsonData[0].lat;
-    const lon = jsonData[0].lon;
-    const locationData = await getWeatherDataFromLocation(lat, lon);
-    inputField.value = "";
-    displayWeatherDetails(locationData);
+  if (data) {
+    const jsonData = await data?.json();
+    if (jsonData.length>0) {
+      const lat = jsonData[0]?.lat;
+      const lon = jsonData[0]?.lon;
+      const locationData = await getWeatherDataFromLocation(lat, lon);
+      // inputField.value = "";
+      displayWeatherDetails(locationData);
+    }else{
+      errorMessage.innerText = "Invalid City";
+      document.body.style.backgroundImage = "url(/assets/Default.jpg)";
+      showError();
+    }
   } else {
-    cardContainer.style.display = "none";
-    loaderContainer.style.display = "none";
-    errorMessage.innerText = "Invalid City";
-    document.body.style.backgroundImage = "url(/assets/Default.jpg)";
-    errorContainer.style.display = "inline-block";
+    return null;
   }
 };
 
 const fetchData = async (url) => {
   const response = await fetch(url);
-  return response;
+    if (response.status !== 200) {
+      errorMessage.innerText = "Invalid City";
+      document.body.style.backgroundImage = "url(/assets/Default.jpg)";
+      showError();
+      return null;
+    }
+    return response;
 };
 
 inputField.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     searchBtn.click();
-  }
-  else if(inputField.value=='' && e.keyCode===32){
+  } else if (inputField.value == "" && e.keyCode === 32) {
     e.preventDefault();
     return;
   }
 });
 
 searchBtn.addEventListener("click", async () => {
-  if(!inputField.value==''){
+  if (!inputField.value == "") {
     const value = inputField.value;
     inputCityName(value.trim());
+    inputField.value="";
+  } else {
+    inputField.value="";
+    errorMessage.innerText = "Please Enter cityname";
+    showError();
   }
-  else{
-    loaderContainer.style.display="none";
-    cardContainer.style.display="none"
-    errorMessage.innerText="Please Enter cityname";
-    errorContainer.style.display="inline-block"
-  } 
 });
 
 const displayWeatherDetails = async (weathDetails) => {
-  loaderContainer.style.display = "none";
-  cardContainer.style.display = "inline-block";
   errorContainer.style.display = "none";
+  hideLoader();
   const { tempInCelcius, description, city, country, iconId, weatherType } =
     weathDetails;
   cityTemp.innerText = tempInCelcius + "° ";
@@ -111,3 +114,19 @@ const displayWeatherDetails = async (weathDetails) => {
   cityWeatherIcon.setAttribute("src", `./assets/${iconId}.png`);
   document.body.style.backgroundImage = `url(/assets/${weatherType}.jpg)`;
 };
+
+const showLoader = () => {
+  cardContainer.style.display = "none";
+  loaderContainer.style.display = "inline-block";
+};
+
+const hideLoader = () => {
+  cardContainer.style.display = "inline-block";
+  loaderContainer.style.display = "none";
+};
+
+const showError=()=>{
+  cardContainer.style.display = "none";
+  loaderContainer.style.display = "none";
+  errorContainer.style.display="inline-block"
+}
