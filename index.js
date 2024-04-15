@@ -212,9 +212,9 @@ const toggleContainer = (showLoader, showCard, showError) => {
 };
 
 
-const filterCities = (input) => {
+const filterCities = (cityname) => {
   const filteredCities = cityData.cities.filter(city =>
-    city.name.toLowerCase().includes(input.toLowerCase())
+    city.name.toLowerCase().includes(cityname.toLowerCase())
   );
   return filteredCities;
 };
